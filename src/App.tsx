@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { ShoppingBag, LayoutGrid, List } from "lucide-react";
 import { products } from "./data/products";
-import { ProductCard } from "./components/ProductCard";
 import { ProductDetails } from "./components/ProductDetails";
 import { Cart } from "./components/Cart";
 import { CheckoutForm } from "./components/CheckoutForm";
 import { CartItem, OrderDetails, Product, ViewMode } from "./types";
+import { Header } from "./components/Header";
+import { OrderComplete } from "./components/OrderComplete";
+import { CategorySection } from "./components/CategorySection";
 
 function App() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -53,6 +54,11 @@ function App() {
     console.log("Order submitted:", { items: cartItems, details });
     setOrderComplete(true);
     setCartItems([]);
+  };
+
+  const handleContinueShopping = () => {
+    setOrderComplete(false);
+    setIsCheckout(false);
   };
 
   const categories = {
@@ -107,67 +113,17 @@ function App() {
   };
 
   if (orderComplete) {
-    return (
-      <div className="min-h-screen bg-gray-100 p-4">
-        <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-8 text-center">
-          <h2 className="text-2xl font-bold text-green-600 mb-4">
-            訂單已送出！
-          </h2>
-          <p className="text-gray-600 mb-6">
-            感謝您的訂購，我們將盡快處理您的訂單。
-          </p>
-          <button
-            onClick={() => {
-              setOrderComplete(false);
-              setIsCheckout(false);
-            }}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            繼續購物
-          </button>
-        </div>
-      </div>
-    );
+    return <OrderComplete onContinueShopping={handleContinueShopping} />;
   }
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <header className="bg-white shadow-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-900">美食嚴選</h1>
-          <div className="flex items-center gap-4">
-            <div className="flex bg-gray-100 rounded-lg p-1">
-              <button
-                onClick={() => setViewMode("grid")}
-                className={`p-2 rounded ${
-                  viewMode === "grid" ? "bg-white shadow" : "hover:bg-white/50"
-                }`}
-              >
-                <LayoutGrid size={20} />
-              </button>
-              <button
-                onClick={() => setViewMode("list")}
-                className={`p-2 rounded ${
-                  viewMode === "list" ? "bg-white shadow" : "hover:bg-white/50"
-                }`}
-              >
-                <List size={20} />
-              </button>
-            </div>
-            <button
-              onClick={() => setIsCartOpen(true)}
-              className="relative bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              <ShoppingBag size={24} />
-              {cartItems.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
-                  {cartItems.length}
-                </span>
-              )}
-            </button>
-          </div>
-        </div>
-      </header>
+      <Header
+        cartItemsCount={cartItems.length}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+        onCartOpen={() => setIsCartOpen(true)}
+      />
 
       <main
         className={`transition-all duration-300 ${
@@ -186,26 +142,13 @@ function App() {
           ) : (
             <div className="space-y-8">
               {Object.entries(categories).map(([key, category]) => (
-                <section key={key}>
-                  <h2 className="text-2xl font-bold mb-6">{category.title}</h2>
-                  <div
-                    className={
-                      viewMode === "grid"
-                        ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-                        : "space-y-4"
-                    }
-                  >
-                    {category.items.map((product) => (
-                      <ProductCard
-                        key={product.id}
-                        product={product}
-                        onAddToCart={addToCart}
-                        onViewDetails={setSelectedProduct}
-                        viewMode={viewMode}
-                      />
-                    ))}
-                  </div>
-                </section>
+                <CategorySection
+                  key={key}
+                  category={category}
+                  viewMode={viewMode}
+                  onAddToCart={addToCart}
+                  onViewDetails={setSelectedProduct}
+                />
               ))}
             </div>
           )}
