@@ -1,6 +1,6 @@
-import { X, ShoppingCart, Minus, Plus } from 'lucide-react';
-import { useState } from 'react';
-import { Product } from '../types';
+import { Product } from "@/types";
+import { X, ShoppingCart, Minus, Plus } from "lucide-react";
+import { useState } from "react";
 
 interface ProductDetailsProps {
   product: Product;
@@ -8,7 +8,11 @@ interface ProductDetailsProps {
   onAddToCart: (product: Product, quantity: number) => void;
 }
 
-export function ProductDetails({ product, onClose, onAddToCart }: ProductDetailsProps) {
+export function ProductDetails({
+  product,
+  onClose,
+  onAddToCart,
+}: ProductDetailsProps) {
   const [quantity, setQuantity] = useState(1);
 
   const handleQuantityChange = (delta: number) => {
@@ -27,26 +31,32 @@ export function ProductDetails({ product, onClose, onAddToCart }: ProductDetails
             <X size={24} />
           </button>
         </div>
-        
+
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
-              <img 
-                src={product.image} 
+              <img
+                src={product.image}
                 alt={product.name}
                 className="w-full aspect-square object-cover rounded-lg"
               />
             </div>
-            
+
             <div className="space-y-6">
               <div>
                 <div className="flex items-center gap-4 mb-4">
-                  <span className="text-3xl font-bold">NT$ {product.price}</span>
+                  <span className="text-3xl font-bold">
+                    NT$ {product.price}
+                  </span>
                   {product.isLimited && (
-                    <span className="bg-yellow-100 text-yellow-800 text-sm px-3 py-1 rounded-full">限量商品</span>
+                    <span className="bg-yellow-100 text-yellow-800 text-sm px-3 py-1 rounded-full">
+                      限量商品
+                    </span>
                   )}
                   {product.isOutOfStock && (
-                    <span className="bg-red-100 text-red-800 text-sm px-3 py-1 rounded-full">缺貨中</span>
+                    <span className="bg-red-100 text-red-800 text-sm px-3 py-1 rounded-full">
+                      缺貨中
+                    </span>
                   )}
                 </div>
                 <p className="text-gray-600">{product.description}</p>
@@ -67,7 +77,9 @@ export function ProductDetails({ product, onClose, onAddToCart }: ProductDetails
                 </div>
                 <div className="flex gap-2">
                   <span className="font-semibold w-20">庫存:</span>
-                  <span>{product.isOutOfStock ? '缺貨中' : `${product.stock} 件`}</span>
+                  <span>
+                    {product.isOutOfStock ? "缺貨中" : `${product.stock} 件`}
+                  </span>
                 </div>
               </div>
 

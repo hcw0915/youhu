@@ -1,0 +1,37 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# HCW coding styles
+
+- TS 宣告型別盡可能使用 type 宣告
+- TS 避免主動提供型別, 除非會有導致 error 的錯誤
+- return 後盡可能避免出現匿名函數, 如有需要應該先行宣告
+- 以 immutable 方式進行撰寫 
+－ 盡可能宣告清晰變數, 取代寫一大串塞入函數
+  ```js
+  // 錯誤使用
+  setState(aaa.map(...)) 
+
+  // 應該使用 
+  const newAAA = aaa.map(...)
+  setState(newAAA)
+  ```
+
+- 函數宣告關於動作或是交互請使用 `on-<ActionName>` 取代 `handle-<ActionName>`
+- 使用 pnpm 做為預設指令, 如果指令版本配不上則直接先使用 `nvm use v18` 
+- 避免直接解構 props 而是
+
+```js
+// 錯誤使用
+const Component: React.FC = ({title, description}) => {
+
+// 正確使用
+const Component: React.FC = (props) => {
+  const {title, description} = props
+```
+
+－ 使用 `@` alias 代替相對路徑
+- 使用 StorageKey 或是 Actions, 盡可能以 constants 裡面宣告引用 避免手動輸入字串
