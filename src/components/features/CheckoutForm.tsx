@@ -51,11 +51,11 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
   onCancel,
 }) => {
   const [formData, setFormData] = useState<CheckoutDetails>({
-    name: "測試用戶",
-    phone: "0912345678",
-    email: "test@example.com",
-    address: "台北市信義區信義路五段7號",
-    notes: "請在下午3點前送達",
+    name: "",
+    phone: "",
+    email: "",
+    address: "",
+    notes: "",
   });
 
   const [errors, setErrors] = useState<
@@ -125,7 +125,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
       <div className="mb-6">
         <h3 className="text-lg font-semibold mb-2">訂單摘要</h3>
         <div className="border rounded-md p-4">
-          <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2">
+          <div className="space-y-3">
             {items.map((item, index) => (
               <OrderItem key={item.id} item={item} index={index} />
             ))}

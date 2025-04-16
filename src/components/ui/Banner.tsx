@@ -49,8 +49,13 @@ export const Banner: React.FC<BannerProps> = (props) => {
   return (
     <div
       ref={bannerRef}
-      className="relative w-full overflow-hidden"
-      style={{ height: height > 0 ? `${height}px` : "auto" }}
+      className="relative w-full overflow-hidden max-h-[80vh] px-4 md:px-8 lg:px-16"
+      style={{
+        height:
+          height > 0
+            ? `${Math.min(height, window.innerHeight * 0.8)}px`
+            : "auto",
+      }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >

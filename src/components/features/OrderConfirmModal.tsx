@@ -5,7 +5,8 @@ import { useImageValidation } from "@/hooks/useImageValidation";
 import toast from "react-hot-toast";
 
 // 從環境變數獲取 Google Apps Script URL
-const GOOGLE_SHEET_API_URL = import.meta.env.VITE_GOOGLE_SHEET_API_URL;
+const GOOGLE_SHEET_API_URL =
+  "https://script.google.com/macros/s/AKfycbwdLwrEbcT0r3UvZNusqkUpcYxaWSKL1Ob_iSmz2jazLKHhMnb6zJJDeSxanBCt_W03/exec";
 
 type OrderConfirmModalProps = {
   orderDetails: CheckoutDetails;
@@ -97,29 +98,6 @@ export const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
           image: item.image,
         })),
       };
-
-      // 在控制台顯示訂單表格
-      console.table({
-        訂單編號: orderId,
-        訂購時間: new Date().toLocaleString(),
-        收件人: orderDetails.name,
-        電話: orderDetails.phone,
-        電子郵件: orderDetails.email,
-        地址: orderDetails.address,
-        備註: orderDetails.notes || "無",
-        總金額: `NT$ ${calculateTotal()}`,
-        商品數量: `${items.length} 類 ${calculateTotalItems()} 件`,
-      });
-
-      // 顯示商品表格
-      console.table(
-        items.map((item) => ({
-          商品名稱: item.name,
-          單價: `NT$ ${item.price}`,
-          數量: item.quantity,
-          小計: `NT$ ${item.price * item.quantity}`,
-        }))
-      );
 
       // 發送到 Google Sheet
       console.log("準備發送資料到 Google Sheet:", orderData);
