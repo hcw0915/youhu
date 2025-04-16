@@ -2,17 +2,23 @@ import React from "react";
 import { ShoppingCart, Minus, Plus } from "lucide-react";
 import { useState } from "react";
 import { Product } from "@/types";
+import { useImageValidation } from "@/hooks/useImageValidation";
 
 interface ProductCardProps {
   product: Product;
+  viewMode?: "grid" | "list";
   onAddToCart: (product: Product, quantity: number) => void;
   onViewDetails: (product: Product) => void;
-  viewMode: "grid" | "list";
 }
 
-export const ProductCard: React.FC<ProductCardProps> = (props) => {
-  const { product, onAddToCart, onViewDetails, viewMode } = props;
+export const ProductCard: React.FC<ProductCardProps> = ({
+  product,
+  viewMode = "grid",
+  onAddToCart,
+  onViewDetails,
+}) => {
   const [quantity, setQuantity] = useState(1);
+  const validImageUrl = useImageValidation(product.image);
 
   const onQuantityChange = (delta: number) => {
     setQuantity(Math.max(1, quantity + delta));
@@ -40,7 +46,7 @@ export const ProductCard: React.FC<ProductCardProps> = (props) => {
       <div className="bg-white rounded-lg shadow-sm p-2 flex items-center gap-4">
         <div className="cursor-pointer" onClick={onViewDetailsClick}>
           <img
-            src={product.image}
+            src={validImageUrl}
             alt={product.name}
             className="w-24 h-24 object-cover rounded"
           />
@@ -97,25 +103,29 @@ export const ProductCard: React.FC<ProductCardProps> = (props) => {
   }
 
   return (
-    <div className="relative bg-white rounded-lg shadow-md overflow-hidden h-[420px] transition-transform duration-300 hover:scale-105">
-      {product.isOutOfStock && (
-        <div className="absolute inset-0 bg-gray-900/50 flex items-center justify-center z-[1]">
-          <span className="text-white text-xl font-bold">已售完</span>
-        </div>
-      )}
-      <div className="cursor-pointer h-48" onClick={onViewDetailsClick}>
+    <div
+      className={`group relative bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg ${
+        viewMode === "list" ? "flex" : ""
+      }`}
+    >
+      <div
+        className={`relative ${viewMode === "list" ? "w-1/3" : "aspect-[4/3]"}`}
+      >
         <img
-          src={product.image}
+          src={validImageUrl}
           alt={product.name}
           className="w-full h-full object-cover"
         />
+        {product.isOutOfStock && (
+          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10">
+            <span className="text-white text-lg font-semibold">已售完</span>
+          </div>
+        )}
       </div>
-      <div className="p-4 space-y-4 h-[calc(100%-12rem)] flex flex-col">
-        <div className="flex-1">
-          <h3 className="text-lg font-semibold mb-2 line-clamp-1">
-            {product.name}
-          </h3>
-          <p className="text-gray-600 line-clamp-2 mb-2">
+      <div className="p-4 flex flex-col">
+        <div className="space-y-2">
+          <h3 className="text-lg font-semibold line-clamp-1">{product.name}</h3>
+          <p className="text-gray-600 line-clamp-2 text-sm">
             {product.description}
           </p>
           <div className="text-xl font-bold text-blue-600">
@@ -123,7 +133,7 @@ export const ProductCard: React.FC<ProductCardProps> = (props) => {
           </div>
         </div>
 
-        <div className="flex gap-2 mt-auto">
+        <div className="flex gap-2 mt-4">
           {!product.isOutOfStock && (
             <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
               <button

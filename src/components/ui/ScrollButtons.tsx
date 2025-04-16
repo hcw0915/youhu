@@ -88,7 +88,7 @@ export const ScrollButtons = ({
       {showScrollToTop && (
         <button
           onClick={scrollToTop}
-          className={`fixed bottom-8 right-8 bg-blue-400 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-all duration-300 z-50 ${
+          className={`fixed bottom-8 right-8 bg-blue-400 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-all duration-300 z-[45] ${
             isCartOpen ? "md:mr-96" : ""
           }`}
         >

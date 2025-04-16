@@ -1,130 +1,258 @@
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { OrderDetails } from '../types';
+import React, { useState } from "react";
+import { CartItem } from "@/types";
+import { useImageValidation } from "@/hooks/useImageValidation";
 
-const schema = z.object({
-  name: z.string()
-    .min(2, '姓名至少需要 2 個字')
-    .max(50, '姓名不能超過 50 個字'),
-  email: z.string()
-    .email('請輸入有效的電子郵件地址'),
-  phone: z.string()
-    .regex(/^09\d{8}$/, '請輸入有效的手機號碼（格式：09xxxxxxxx）'),
-  address: z.string()
-    .min(8, '地址至少需要 8 個字')
-    .max(100, '地址不能超過 100 個字'),
-  note: z.string()
-    .max(200, '備註不能超過 200 個字')
-    .optional()
-});
-
-interface CheckoutFormProps {
-  onSubmit: (details: OrderDetails) => void;
+type CheckoutFormProps = {
+  items: CartItem[];
+  onSubmit: (details: CheckoutDetails) => void;
   onCancel: () => void;
-}
+};
 
-export function CheckoutForm({ onSubmit, onCancel }: CheckoutFormProps) {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors }
-  } = useForm<OrderDetails>({
-    resolver: zodResolver(schema)
+export type CheckoutDetails = {
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  notes: string;
+};
+
+export const CheckoutForm: React.FC<CheckoutFormProps> = ({
+  items,
+  onSubmit,
+  onCancel,
+}) => {
+  const [formData, setFormData] = useState<CheckoutDetails>({
+    name: "測試用戶",
+    phone: "0912345678",
+    email: "test@example.com",
+    address: "台北市信義區信義路五段7號",
+    notes: "請在下午3點前送達",
   });
 
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof CheckoutDetails, string>>
+  >({});
+
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (errors[name as keyof CheckoutDetails]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: Partial<Record<keyof CheckoutDetails, string>> = {};
+
+    if (!formData.name.trim()) {
+      newErrors.name = "請輸入姓名";
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = "請輸入電子郵件";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "請輸入有效的電子郵件";
+    }
+
+    if (!formData.phone.trim()) {
+      newErrors.phone = "請輸入電話";
+    } else if (!/^[0-9]{8,10}$/.test(formData.phone)) {
+      newErrors.phone = "請輸入有效的電話號碼";
+    }
+
+    if (!formData.address.trim()) {
+      newErrors.address = "請輸入地址";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (validateForm()) {
+      onSubmit(formData);
+    }
+  };
+
+  const calculateTotal = () => {
+    return items.reduce((total, item) => total + item.price * item.quantity, 0);
+  };
+
+  const calculateTotalItems = () => {
+    return items.reduce((total, item) => total + item.quantity, 0);
+  };
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-          姓名
-        </label>
-        <input
-          type="text"
-          id="name"
-          {...register('name')}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-        />
-        {errors.name && (
-          <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
-        )}
+    <div className="bg-white p-6 rounded-lg shadow-md mt-16">
+      <h2 className="text-2xl font-bold mb-6">結帳資訊</h2>
+
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold mb-2">訂單摘要</h3>
+        <div className="border rounded-md p-4">
+          <div className="space-y-3">
+            {items.map((item, index) => {
+              const validImageUrl = useImageValidation(item.image);
+              return (
+                <div key={item.id} className="flex items-center space-x-4">
+                  <div className="w-8 text-gray-500">{index + 1}.</div>
+                  <div className="w-20 h-20 flex-shrink-0">
+                    <img
+                      src={validImageUrl}
+                      alt={item.name}
+                      className="w-full h-full object-cover rounded-md"
+                    />
+                  </div>
+                  <div className="flex-grow">
+                    <div className="font-medium">{item.name}</div>
+                    <div className="text-gray-500">x {item.quantity}</div>
+                  </div>
+                  <div className="text-right">
+                    <div>NT$ {item.price * item.quantity}</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="flex justify-between py-2 font-bold border-t mt-4">
+            <div>
+              共 {items.length} 類 {calculateTotalItems()} 件商品
+            </div>
+            <div>NT$ {calculateTotal()}</div>
+          </div>
+        </div>
       </div>
 
-      <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-          電子郵件
-        </label>
-        <input
-          type="email"
-          id="email"
-          {...register('email')}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-        />
-        {errors.email && (
-          <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
-        )}
-      </div>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              姓名 <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              className={`w-full px-3 py-2 border rounded-md ${
+                errors.name ? "border-red-500" : "border-gray-300"
+              }`}
+            />
+            {errors.name && (
+              <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+            )}
+          </div>
 
-      <div>
-        <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-          電話
-        </label>
-        <input
-          type="tel"
-          id="phone"
-          {...register('phone')}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-        />
-        {errors.phone && (
-          <p className="mt-1 text-sm text-red-600">{errors.phone.message}</p>
-        )}
-      </div>
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              電子郵件 <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className={`w-full px-3 py-2 border rounded-md ${
+                errors.email ? "border-red-500" : "border-gray-300"
+              }`}
+            />
+            {errors.email && (
+              <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+            )}
+          </div>
 
-      <div>
-        <label htmlFor="address" className="block text-sm font-medium text-gray-700">
-          配送地址
-        </label>
-        <textarea
-          id="address"
-          {...register('address')}
-          rows={3}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-        />
-        {errors.address && (
-          <p className="mt-1 text-sm text-red-600">{errors.address.message}</p>
-        )}
-      </div>
+          <div>
+            <label
+              htmlFor="phone"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              電話 <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              className={`w-full px-3 py-2 border rounded-md ${
+                errors.phone ? "border-red-500" : "border-gray-300"
+              }`}
+            />
+            {errors.phone && (
+              <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
+            )}
+          </div>
+        </div>
 
-      <div>
-        <label htmlFor="note" className="block text-sm font-medium text-gray-700">
-          備註（選填）
-        </label>
-        <textarea
-          id="note"
-          {...register('note')}
-          rows={2}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-        />
-        {errors.note && (
-          <p className="mt-1 text-sm text-red-600">{errors.note.message}</p>
-        )}
-      </div>
+        <div>
+          <label
+            htmlFor="address"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            地址 <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            id="address"
+            name="address"
+            value={formData.address}
+            onChange={handleChange}
+            className={`w-full px-3 py-2 border rounded-md ${
+              errors.address ? "border-red-500" : "border-gray-300"
+            }`}
+          />
+          {errors.address && (
+            <p className="text-red-500 text-sm mt-1">{errors.address}</p>
+          )}
+        </div>
 
-      <div className="flex gap-4">
-        <button
-          type="submit"
-          className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          確認訂購
-        </button>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors"
-        >
-          返回購物車
-        </button>
-      </div>
-    </form>
+        <div>
+          <label
+            htmlFor="notes"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            備註
+          </label>
+          <textarea
+            id="notes"
+            name="notes"
+            value={formData.notes}
+            onChange={handleChange}
+            rows={3}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+          />
+        </div>
+
+        <div className="flex justify-between pt-4">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"
+          >
+            取消
+          </button>
+          <button
+            type="submit"
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          >
+            確認訂購
+          </button>
+        </div>
+      </form>
+    </div>
   );
-}
+};

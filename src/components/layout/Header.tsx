@@ -3,6 +3,7 @@ import { ShoppingBag, LayoutGrid, List, X, Menu } from "lucide-react";
 import { ViewMode } from "@/types";
 import { useNavigate } from "react-router-dom";
 import { useCartStore } from "@/stores/cartStore";
+import { Link } from "react-router-dom";
 
 type HeaderProps = {
   viewMode: ViewMode;
@@ -26,59 +27,60 @@ export const Header: React.FC<HeaderProps> = (props) => {
   };
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50">
+    <header className="bg-white shadow-md fixed top-0 left-0 right-0 z-40">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
-            <button
-              onClick={toggleMenu}
-              className="p-2 hover:bg-gray-100 rounded-lg lg:hidden"
-            >
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-            <button onClick={onLogoClick} className="flex items-center gap-2">
+            <Link to="/" className="flex items-center gap-2">
               <img
-                src="src/assets/youho_logo.jpg"
+                src="/src/assets/youho_logo.jpg"
                 alt="Logo"
-                className="h-8 w-auto"
+                className="h-8 w-8"
               />
               <span className="text-xl font-bold text-blue-600">祐呼水產</span>
-            </button>
+            </Link>
           </div>
+
           <div className="flex items-center gap-4">
-            <div className="flex bg-gray-100 rounded-lg p-1">
+            <div className="flex gap-2">
               <button
                 onClick={() => setViewMode("grid")}
-                className={`p-2 rounded ${
-                  viewMode === "grid" ? "bg-white shadow" : "hover:bg-white/50"
+                className={`p-2 rounded-lg transition-colors ${
+                  viewMode === "grid"
+                    ? "bg-blue-600 text-white hover:bg-blue-700"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                 }`}
               >
-                <LayoutGrid size={20} />
+                <LayoutGrid size={24} />
               </button>
               <button
                 onClick={() => setViewMode("list")}
-                className={`p-2 rounded ${
-                  viewMode === "list" ? "bg-white shadow" : "hover:bg-white/50"
+                className={`p-2 rounded-lg transition-colors ${
+                  viewMode === "list"
+                    ? "bg-blue-600 text-white hover:bg-blue-700"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                 }`}
               >
-                <List size={20} />
+                <List size={24} />
               </button>
             </div>
-            <button
-              onClick={onCartToggle}
-              className={`relative p-2 rounded-lg transition-colors ${
-                isCartOpen
-                  ? "bg-red-600 text-white hover:bg-red-700"
-                  : "bg-blue-600 text-white hover:bg-blue-700"
-              }`}
-            >
-              {isCartOpen ? <X size={24} /> : <ShoppingBag size={24} />}
-              {cartItemCount > 0 && !isCartOpen && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
-                  {cartItemCount}
-                </span>
-              )}
-            </button>
+            <div className="relative">
+              <button
+                onClick={onCartToggle}
+                className={`relative p-2 rounded-lg transition-colors ${
+                  isCartOpen
+                    ? "bg-red-600 text-white hover:bg-red-700"
+                    : "bg-blue-600 text-white hover:bg-blue-700"
+                }`}
+              >
+                {isCartOpen ? <X size={24} /> : <ShoppingBag size={24} />}
+                {cartItemCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                    {cartItemCount}
+                  </span>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </div>

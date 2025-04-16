@@ -7,26 +7,29 @@ type CartItem = {
 
 type CartStore = {
   items: CartItem[];
-  addItem: (itemId: string) => void;
+  addItem: (itemId: string, quantity?: number) => void;
   removeItem: (itemId: string) => void;
   updateQuantity: (itemId: string, quantity: number) => void;
   getItemCount: () => number;
+  setItems: (items: CartItem[]) => void;
 };
 
 export const useCartStore = create<CartStore>((set, get) => ({
   items: [],
 
-  addItem: (itemId: string) => {
+  addItem: (itemId: string, quantity: number = 1) => {
     set((state) => {
       const existingItem = state.items.find((item) => item.id === itemId);
       if (existingItem) {
         return {
           items: state.items.map((item) =>
-            item.id === itemId ? { ...item, quantity: item.quantity + 1 } : item
+            item.id === itemId
+              ? { ...item, quantity: item.quantity + quantity }
+              : item
           ),
         };
       }
-      return { items: [...state.items, { id: itemId, quantity: 1 }] };
+      return { items: [...state.items, { id: itemId, quantity }] };
     });
   },
 
@@ -47,5 +50,9 @@ export const useCartStore = create<CartStore>((set, get) => ({
   getItemCount: () => {
     const state = get();
     return state.items.reduce((total, item) => total + item.quantity, 0);
+  },
+
+  setItems: (items: CartItem[]) => {
+    set({ items });
   },
 }));
