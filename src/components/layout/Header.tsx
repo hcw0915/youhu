@@ -46,7 +46,7 @@ export const Header: React.FC<HeaderProps> = (props) => {
               </button>
               <button
                 onClick={() => setViewMode("list")}
-                className={`p-2 rounded-lg transition-colors ${
+                className={`hidden md:block p-2 rounded-lg transition-colors ${
                   viewMode === "list"
                     ? "bg-blue-600 text-white hover:bg-blue-700"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-200"

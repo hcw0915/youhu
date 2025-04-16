@@ -2,6 +2,10 @@ import React, { useState, useEffect } from "react";
 import { CheckoutDetails } from "./CheckoutForm";
 import { CartItem } from "@/types";
 import { useImageValidation } from "@/hooks/useImageValidation";
+import toast from "react-hot-toast";
+
+// 從環境變數獲取 Google Apps Script URL
+const GOOGLE_SHEET_API_URL = import.meta.env.VITE_GOOGLE_SHEET_API_URL;
 
 type OrderConfirmModalProps = {
   orderDetails: CheckoutDetails;
@@ -47,6 +51,7 @@ export const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
 }) => {
   const [countdown, setCountdown] = useState(30);
   const [isExpired, setIsExpired] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (countdown > 0) {
@@ -67,9 +72,97 @@ export const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
     return items.reduce((total, item) => total + item.quantity, 0);
   };
 
+  const handleConfirm = async () => {
+    setIsSubmitting(true);
+
+    try {
+      // 生成訂單編號
+      const orderId = `ORD-${Date.now().toString().slice(-6)}`;
+
+      // 準備要發送的資料
+      const orderData = {
+        orderId,
+        name: orderDetails.name,
+        phone: orderDetails.phone,
+        email: orderDetails.email,
+        address: orderDetails.address,
+        notes: orderDetails.notes,
+        totalAmount: calculateTotal(),
+        items: items.map((item) => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          subtotal: item.price * item.quantity,
+          image: item.image,
+        })),
+      };
+
+      // 在控制台顯示訂單表格
+      console.table({
+        訂單編號: orderId,
+        訂購時間: new Date().toLocaleString(),
+        收件人: orderDetails.name,
+        電話: orderDetails.phone,
+        電子郵件: orderDetails.email,
+        地址: orderDetails.address,
+        備註: orderDetails.notes || "無",
+        總金額: `NT$ ${calculateTotal()}`,
+        商品數量: `${items.length} 類 ${calculateTotalItems()} 件`,
+      });
+
+      // 顯示商品表格
+      console.table(
+        items.map((item) => ({
+          商品名稱: item.name,
+          單價: `NT$ ${item.price}`,
+          數量: item.quantity,
+          小計: `NT$ ${item.price * item.quantity}`,
+        }))
+      );
+
+      // 發送到 Google Sheet
+      console.log("準備發送資料到 Google Sheet:", orderData);
+
+      try {
+        const response = await fetch(GOOGLE_SHEET_API_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(orderData),
+        });
+
+        console.log("請求已發送，回應狀態:", response.status);
+
+        // 由於 no-cors 模式下無法讀取回應內容，我們假設請求成功
+        // 顯示成功訊息
+        toast.success("訂單已成功儲存！", {
+          position: "top-center",
+          duration: 3000,
+        });
+
+        // 只有在成功送出訂單後才清理 LocalStorage
+        localStorage.removeItem("cart");
+
+        // 調用原有的確認函數
+        onConfirm();
+      } catch (error) {
+        console.error("發送請求時發生錯誤:", error);
+        toast.error("儲存訂單時發生錯誤，請稍後再試", {
+          position: "top-center",
+          duration: 3000,
+        });
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 flex flex-col max-h-[90vh]">
         <h2 className="text-2xl font-bold mb-4">確認訂單</h2>
 
         <div className="mb-4">
@@ -94,7 +187,7 @@ export const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
           )}
         </div>
 
-        <div className="border rounded-md p-4 mb-4">
+        <div className="border rounded-md p-4 mb-4 overflow-y-auto flex-grow">
           <h3 className="font-semibold mb-2">訂購商品</h3>
           <div className="space-y-3">
             {items.map((item, index) => (
@@ -109,23 +202,24 @@ export const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
           </div>
         </div>
 
-        <div className="flex justify-end space-x-4">
+        <div className="flex justify-end space-x-4 pt-4 border-t">
           <button
             onClick={onCancel}
             className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"
+            disabled={isSubmitting}
           >
             取消訂單
           </button>
           <button
-            onClick={onConfirm}
+            onClick={handleConfirm}
             className={`px-4 py-2 rounded-md transition-colors ${
-              isExpired
+              isExpired || isSubmitting
                 ? "bg-gray-400 text-gray-600 cursor-not-allowed"
                 : "bg-blue-600 text-white hover:bg-blue-700"
             }`}
-            disabled={isExpired}
+            disabled={isExpired || isSubmitting}
           >
-            確認訂購
+            {isSubmitting ? "處理中..." : "確認訂購"}
           </button>
         </div>
 

@@ -125,7 +125,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
       <div className="mb-6">
         <h3 className="text-lg font-semibold mb-2">訂單摘要</h3>
         <div className="border rounded-md p-4">
-          <div className="space-y-3">
+          <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2">
             {items.map((item, index) => (
               <OrderItem key={item.id} item={item} index={index} />
             ))}

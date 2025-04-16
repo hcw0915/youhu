@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 type BannerProps = {
   images?: string[];
+  aspectRatio?: number; // 寬高比，預設為 16:9
 };
 
 const defaultImages = [
@@ -11,8 +12,28 @@ const defaultImages = [
 ];
 
 export const Banner: React.FC<BannerProps> = (props) => {
-  const { images = defaultImages } = props;
+  const { images = defaultImages, aspectRatio = 16 / 9 } = props;
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+  const bannerRef = useRef<HTMLDivElement>(null);
+  const [height, setHeight] = useState(0);
+
+  // 根據寬度和寬高比計算高度
+  useEffect(() => {
+    const updateHeight = () => {
+      if (bannerRef.current) {
+        const width = bannerRef.current.offsetWidth;
+        setHeight(width / aspectRatio);
+      }
+    };
+
+    updateHeight();
+    window.addEventListener("resize", updateHeight);
+
+    return () => {
+      window.removeEventListener("resize", updateHeight);
+    };
+  }, [aspectRatio]);
 
   const nextSlide = () => {
     setCurrentIndex((prevIndex) =>
@@ -26,21 +47,30 @@ export const Banner: React.FC<BannerProps> = (props) => {
   }, []);
 
   return (
-    <div className="relative w-full h-[400px] overflow-hidden">
+    <div
+      ref={bannerRef}
+      className="relative w-full overflow-hidden"
+      style={{ height: height > 0 ? `${height}px` : "auto" }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <div
         className="flex transition-transform duration-500 ease-in-out h-full"
         style={{ transform: `translateX(-${currentIndex * 100}%)` }}
       >
         {images.map((image, index) => (
-          <div
-            key={index}
-            className="w-full h-full flex-shrink-0"
-            style={{
-              backgroundImage: `url(${image})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          />
+          <div key={index} className="w-full h-full flex-shrink-0 relative">
+            <div
+              className="absolute inset-0 transition-all duration-700 ease-in-out"
+              style={{
+                backgroundImage: `url(${image})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                transform: isHovered ? "scale(1.1)" : "scale(1)",
+              }}
+            />
+            <div className="absolute inset-0 bg-black/20" />
+          </div>
         ))}
       </div>
 

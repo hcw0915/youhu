@@ -87,6 +87,7 @@ export const App: React.FC = () => {
   };
 
   const onCheckout = () => {
+    setIsCartOpen(false);
     navigate("/checkout");
   };
 

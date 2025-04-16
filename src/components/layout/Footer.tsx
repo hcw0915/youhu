@@ -1,11 +1,6 @@
-import React from "react";
 import { Instagram, Phone, MapPin, Clock } from "lucide-react";
 
-type FooterProps = {
-  isCartOpen?: boolean;
-};
-
-export const Footer: React.FC<FooterProps> = ({ isCartOpen = false }) => {
+export const Footer = () => {
   return (
     <footer className="bg-gray-800 text-white py-8">
       <div className="container mx-auto px-16">

@@ -35,7 +35,7 @@ export const PageContainer: React.FC<PageContainerProps> = ({
         {children}
       </main>
 
-      <Footer isCartOpen={isCartOpen} />
+      <Footer />
     </div>
   );
 };
