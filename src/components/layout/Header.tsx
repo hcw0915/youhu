@@ -4,6 +4,7 @@ import { ViewMode } from "@/types";
 
 import { useCartStore } from "@/stores/cartStore";
 import { Link } from "react-router-dom";
+import youhoLogo from "@/assets/youho_logo.jpg";
 
 type HeaderProps = {
   viewMode: ViewMode;
@@ -23,11 +24,7 @@ export const Header: React.FC<HeaderProps> = (props) => {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="flex items-center gap-2">
-              <img
-                src="/assets/youho_logo.jpg"
-                alt="Logo"
-                className="h-8 w-8"
-              />
+              <img src={youhoLogo} alt="Logo" className="h-8 w-8" />
               <span className="text-xl font-bold text-blue-600">祐呼水產</span>
             </Link>
           </div>

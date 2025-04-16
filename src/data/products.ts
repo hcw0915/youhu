@@ -1,4 +1,4 @@
-import { Product } from "../types";
+import { Product } from "@/types";
 
 export const products: Product[] = [
   {
@@ -12,7 +12,7 @@ export const products: Product[] = [
     origin: "日本",
     weight: "1公斤/盒",
     storageMethod: "冷凍(-18°C以下)",
-    isOutOfStock: true,
+    isOutOfStock: false,
     isLimited: false,
   },
   {
