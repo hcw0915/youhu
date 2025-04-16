@@ -1,6 +1,7 @@
 import React from "react";
 import { X, Minus, Plus, Trash2 } from "lucide-react";
 import { CartItem } from "@/types";
+import { ProductImage } from "@/components/ui/ProductImage";
 
 interface CartProps {
   items: CartItem[];
@@ -19,11 +20,6 @@ export const Cart: React.FC<CartProps> = ({
   onClose,
   isOpen,
 }) => {
-  const total = items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
-
   if (!isOpen) return null;
 
   return (
@@ -51,41 +47,59 @@ export const Cart: React.FC<CartProps> = ({
               {items.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-center gap-4 p-2 bg-gray-50 rounded-lg"
+                  className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg"
                 >
-                  <img
+                  <ProductImage
                     src={item.image}
                     alt={item.name}
-                    className="w-16 h-16 object-cover rounded"
+                    className="w-14 h-14 object-cover rounded"
                   />
-                  <div className="flex-1">
-                    <h3 className="font-medium">{item.name}</h3>
-                    <p className="text-gray-600">NT$ {item.price}</p>
+                  <div className="flex-1 min-w-0">
+                    <h3
+                      className="font-medium text-base truncate"
+                      title={item.name}
+                    >
+                      {item.name}
+                    </h3>
+                    <p
+                      className="text-gray-600 text-sm"
+                      title={`NT$ ${item.price}`}
+                    >
+                      NT$ {item.price}
+                    </p>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
                     <button
                       onClick={() =>
                         onUpdateQuantity(item.id, item.quantity - 1)
                       }
                       className="p-1 hover:bg-gray-200 rounded"
+                      title="減少數量"
                     >
-                      <Minus size={16} />
+                      <Minus size={14} />
                     </button>
-                    <span className="w-8 text-center">{item.quantity}</span>
+                    <span
+                      className="w-6 text-center text-base"
+                      title={`目前數量: ${item.quantity}`}
+                    >
+                      {item.quantity}
+                    </span>
                     <button
                       onClick={() =>
                         onUpdateQuantity(item.id, item.quantity + 1)
                       }
                       className="p-1 hover:bg-gray-200 rounded"
+                      title="增加數量"
                     >
-                      <Plus size={16} />
+                      <Plus size={14} />
                     </button>
                   </div>
                   <button
                     onClick={() => onRemoveItem(item.id)}
-                    className="p-2 text-red-500 hover:bg-red-50 rounded"
+                    className="p-1 text-red-500 hover:bg-red-50 rounded"
+                    title="移除商品"
                   >
-                    <Trash2 size={16} />
+                    <Trash2 size={14} />
                   </button>
                 </div>
               ))}

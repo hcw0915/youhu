@@ -1,14 +1,8 @@
-import React, { useState } from "react";
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-  Navigate,
-  useNavigate,
-} from "react-router-dom";
+import React from "react";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { ProductDetails } from "@/components/features/ProductDetails";
 import { Cart } from "@/components/features/Cart";
-import { CartItem, Product, ViewMode } from "@/types";
+import { CartItem, Product } from "@/types";
 import { Header } from "@/components/layout/Header";
 import { OrderComplete } from "@/components/features/OrderComplete";
 import { Banner } from "@/components/ui/Banner";
@@ -19,18 +13,19 @@ import { ProductList } from "@/components/ui/ProductList";
 import { CheckoutPage } from "@/components/features/CheckoutPage";
 import { CheckoutDetails } from "@/components/features/CheckoutForm";
 import { useCartStore } from "@/stores/cartStore";
+import { Toaster, toast } from "react-hot-toast";
 
 export const App: React.FC = () => {
   const navigate = useNavigate();
   const [cartItems, setCartItems] = React.useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = React.useState(false);
-  const [orderComplete, setOrderComplete] = useState(false);
   const [orderDetails, setOrderDetails] =
     React.useState<CheckoutDetails | null>(null);
-  const [orderItems, setOrderItems] = useState<CartItem[]>([]);
+  const [orderItems, setOrderItems] = React.useState<CartItem[]>([]);
   const [viewMode, setViewMode] = React.useState<"grid" | "list">("grid");
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [isCheckout, setIsCheckout] = React.useState(false);
+  const [selectedProduct, setSelectedProduct] = React.useState<Product | null>(
+    null
+  );
 
   const { setItems: setCartStoreItems } = useCartStore();
 
@@ -51,7 +46,7 @@ export const App: React.FC = () => {
   }, [cartItems]);
 
   const onAddToCart = (product: Product) => {
-    setCartItems((prev) => {
+    const newCartItems = (prev: CartItem[]) => {
       const existingItem = prev.find((item) => item.id === product.id);
       if (existingItem) {
         return prev.map((item) =>
@@ -61,6 +56,16 @@ export const App: React.FC = () => {
         );
       }
       return [...prev, { ...product, quantity: 1 }];
+    };
+
+    setCartItems(newCartItems);
+    toast.success(`已加入 ${product.name} 到購物車`, {
+      position: "bottom-right",
+      duration: 2000,
+      style: {
+        background: "#4CAF50",
+        color: "#fff",
+      },
     });
   };
 
@@ -86,7 +91,6 @@ export const App: React.FC = () => {
   };
 
   const onContinueShopping = () => {
-    setOrderComplete(false);
     navigate("/", { replace: true });
   };
 
@@ -109,7 +113,6 @@ export const App: React.FC = () => {
   const onOrderComplete = (details: CheckoutDetails) => {
     setOrderDetails(details);
     setOrderItems(cartItems);
-    setOrderComplete(true);
     setCartItems([]);
     localStorage.removeItem(STORAGE_KEYS.CART_ITEMS);
     navigate("/checkoutComplete", { replace: true });
@@ -117,6 +120,7 @@ export const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-blue-50 flex flex-col">
+      <Toaster />
       <Header
         viewMode={viewMode}
         setViewMode={setViewMode}

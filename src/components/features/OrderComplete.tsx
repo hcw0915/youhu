@@ -2,26 +2,17 @@ import React from "react";
 import { CartItem } from "@/types";
 import { CheckoutDetails } from "./CheckoutForm";
 import { CheckCircle } from "lucide-react";
-import { PageContainer } from "@/components/layout/PageContainer";
 
 type OrderCompleteProps = {
   onContinueShopping: () => void;
   orderDetails: CheckoutDetails;
   items: CartItem[];
-  isCartOpen?: boolean;
-  viewMode?: "grid" | "list";
-  setViewMode?: (mode: "grid" | "list") => void;
-  onCartToggle?: () => void;
 };
 
 export const OrderComplete: React.FC<OrderCompleteProps> = ({
   onContinueShopping,
   orderDetails,
   items,
-  isCartOpen = false,
-  viewMode = "grid",
-  setViewMode,
-  onCartToggle,
 }) => {
   const calculateTotal = () => {
     return items.reduce((total, item) => total + item.price * item.quantity, 0);

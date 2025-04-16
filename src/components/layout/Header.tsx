@@ -1,7 +1,7 @@
 import React from "react";
-import { ShoppingBag, LayoutGrid, List, X, Menu } from "lucide-react";
+import { ShoppingBag, LayoutGrid, List, X } from "lucide-react";
 import { ViewMode } from "@/types";
-import { useNavigate } from "react-router-dom";
+
 import { useCartStore } from "@/stores/cartStore";
 import { Link } from "react-router-dom";
 
@@ -14,17 +14,8 @@ type HeaderProps = {
 
 export const Header: React.FC<HeaderProps> = (props) => {
   const { viewMode, setViewMode, onCartToggle, isCartOpen } = props;
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-  const navigate = useNavigate();
+
   const cartItemCount = useCartStore((state) => state.getItemCount());
-
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
-
-  const onLogoClick = () => {
-    navigate("/");
-  };
 
   return (
     <header className="bg-white shadow-md fixed top-0 left-0 right-0 z-40">

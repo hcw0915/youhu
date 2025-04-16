@@ -1,6 +1,8 @@
 import { Product } from "@/types";
 import { X, ShoppingCart, Minus, Plus } from "lucide-react";
 import { useState } from "react";
+import { ProductImage } from "@/components/ui/ProductImage";
+import { useImageValidation } from "@/hooks/useImageValidation";
 
 interface ProductDetailsProps {
   product: Product;
@@ -14,6 +16,7 @@ export function ProductDetails({
   onAddToCart,
 }: ProductDetailsProps) {
   const [quantity, setQuantity] = useState(1);
+  const validImageUrl = useImageValidation(product.image);
 
   const handleQuantityChange = (delta: number) => {
     setQuantity(Math.max(1, quantity + delta));
@@ -35,7 +38,7 @@ export function ProductDetails({
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
-              <img
+              <ProductImage
                 src={product.image}
                 alt={product.name}
                 className="w-full aspect-square object-cover rounded-lg"

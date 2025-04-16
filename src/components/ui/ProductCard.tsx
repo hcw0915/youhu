@@ -3,10 +3,13 @@ import { ShoppingCart, Minus, Plus } from "lucide-react";
 import { useState } from "react";
 import { Product } from "@/types";
 import { useImageValidation } from "@/hooks/useImageValidation";
+import { ProductImage } from "./ProductImage";
+
+type ViewMode = "grid" | "list";
 
 interface ProductCardProps {
   product: Product;
-  viewMode?: "grid" | "list";
+  viewMode?: ViewMode;
   onAddToCart: (product: Product, quantity: number) => void;
   onViewDetails: (product: Product) => void;
 }
@@ -45,8 +48,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     return (
       <div className="bg-white rounded-lg shadow-sm p-2 flex items-center gap-4">
         <div className="cursor-pointer" onClick={onViewDetailsClick}>
-          <img
-            src={validImageUrl}
+          <ProductImage
+            src={product.image}
             alt={product.name}
             className="w-24 h-24 object-cover rounded"
           />
@@ -104,15 +107,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
   return (
     <div
-      className={`group relative bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg ${
-        viewMode === "list" ? "flex" : ""
-      }`}
+      className="group relative bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg cursor-pointer"
+      onClick={onViewDetailsClick}
     >
-      <div
-        className={`relative ${viewMode === "list" ? "w-1/3" : "aspect-[4/3]"}`}
-      >
-        <img
-          src={validImageUrl}
+      <div className="relative aspect-[4/3]">
+        <ProductImage
+          src={product.image}
           alt={product.name}
           className="w-full h-full object-cover"
         />
@@ -133,7 +133,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           </div>
         </div>
 
-        <div className="flex gap-2 mt-4">
+        <div className="flex gap-2 mt-4" onClick={(e) => e.stopPropagation()}>
           {!product.isOutOfStock && (
             <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
               <button

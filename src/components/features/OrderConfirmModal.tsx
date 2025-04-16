@@ -10,6 +10,35 @@ type OrderConfirmModalProps = {
   onCancel: () => void;
 };
 
+type OrderItemProps = {
+  item: CartItem;
+  index: number;
+};
+
+const OrderItem: React.FC<OrderItemProps> = ({ item, index }) => {
+  const validImageUrl = useImageValidation(item.image);
+
+  return (
+    <div className="flex items-center space-x-4">
+      <div className="w-8 text-gray-500">{index + 1}.</div>
+      <div className="w-20 h-20 flex-shrink-0">
+        <img
+          src={validImageUrl}
+          alt={item.name}
+          className="w-full h-full object-cover rounded-md"
+        />
+      </div>
+      <div className="flex-grow">
+        <div className="font-medium">{item.name}</div>
+        <div className="text-gray-500">x {item.quantity}</div>
+      </div>
+      <div className="text-right">
+        <div>NT$ {item.price * item.quantity}</div>
+      </div>
+    </div>
+  );
+};
+
 export const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
   orderDetails,
   items,
@@ -68,28 +97,9 @@ export const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
         <div className="border rounded-md p-4 mb-4">
           <h3 className="font-semibold mb-2">訂購商品</h3>
           <div className="space-y-3">
-            {items.map((item, index) => {
-              const validImageUrl = useImageValidation(item.image);
-              return (
-                <div key={item.id} className="flex items-center space-x-4">
-                  <div className="w-8 text-gray-500">{index + 1}.</div>
-                  <div className="w-20 h-20 flex-shrink-0">
-                    <img
-                      src={validImageUrl}
-                      alt={item.name}
-                      className="w-full h-full object-cover rounded-md"
-                    />
-                  </div>
-                  <div className="flex-grow">
-                    <div className="font-medium">{item.name}</div>
-                    <div className="text-gray-500">x {item.quantity}</div>
-                  </div>
-                  <div className="text-right">
-                    <div>NT$ {item.price * item.quantity}</div>
-                  </div>
-                </div>
-              );
-            })}
+            {items.map((item, index) => (
+              <OrderItem key={item.id} item={item} index={index} />
+            ))}
           </div>
           <div className="flex justify-between font-bold pt-2 border-t mt-4">
             <div>
