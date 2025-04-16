@@ -49,7 +49,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       <div className="bg-white rounded-lg shadow-sm p-2 flex items-center gap-4">
         <div className="cursor-pointer" onClick={onViewDetailsClick}>
           <ProductImage
-            src={product.image}
+            src={validImageUrl}
             alt={product.name}
             className="w-24 h-24 object-cover rounded"
           />
@@ -112,7 +112,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     >
       <div className="relative aspect-[4/3]">
         <ProductImage
-          src={product.image}
+          src={validImageUrl}
           alt={product.name}
           className="w-full h-full object-cover"
         />
