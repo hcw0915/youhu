@@ -24,7 +24,7 @@ export const Header: React.FC<HeaderProps> = (props) => {
           <div className="flex items-center">
             <Link to="/" className="flex items-center gap-2">
               <img
-                src="/src/assets/youho_logo.jpg"
+                src="/assets/youho_logo.jpg"
                 alt="Logo"
                 className="h-8 w-8"
               />
