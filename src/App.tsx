@@ -7,7 +7,6 @@ import { Header } from "@/components/layout/Header";
 import { OrderComplete } from "@/components/features/OrderComplete";
 import { Banner } from "@/components/ui/Banner";
 import { Footer } from "@/components/layout/Footer";
-import { STORAGE_KEYS } from "@/constants/storage";
 import { ScrollButtons } from "@/components/ui/ScrollButtons";
 import { ProductList } from "@/components/ui/ProductList";
 import { CheckoutPage } from "@/components/features/CheckoutPage";
@@ -60,7 +59,7 @@ export const App: React.FC = () => {
 
     setCartItems(newCartItems);
     toast.success(`已加入 ${product.name} 到購物車`, {
-      position: "bottom-right",
+      position: "top-center",
       duration: 2000,
       style: {
         background: "#4CAF50",
@@ -69,37 +68,37 @@ export const App: React.FC = () => {
     });
   };
 
-  const onUpdateQuantity = (productId: string, quantity: number) => {
-    if (quantity === 0) {
-      setCartItems((prev) => prev.filter((item) => item.id !== productId));
-    } else {
-      setCartItems((prev) =>
-        prev.map((item) =>
-          item.id === productId ? { ...item, quantity } : item
-        )
-      );
-    }
+  const onUpdateQuantity = (id: string, quantity: number) => {
+    setCartItems((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, quantity } : item))
+    );
   };
 
-  const onRemoveFromCart = (productId: string) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== productId));
-  };
-
-  const onCheckout = () => {
-    setIsCartOpen(false);
-    navigate("/checkout", { replace: true });
-  };
-
-  const onContinueShopping = () => {
-    navigate("/", { replace: true });
+  const onRemoveFromCart = (id: string) => {
+    setCartItems((prev) => prev.filter((item) => item.id !== id));
   };
 
   const onCartToggle = () => {
-    setIsCartOpen(!isCartOpen);
+    setIsCartOpen((prev) => !prev);
   };
 
   const onCartClose = () => {
     setIsCartOpen(false);
+  };
+
+  const onCheckout = () => {
+    navigate("/checkout");
+  };
+
+  const onContinueShopping = () => {
+    navigate("/");
+  };
+
+  const onOrderComplete = (details: CheckoutDetails) => {
+    setOrderDetails(details);
+    setOrderItems(cartItems);
+    setCartItems([]);
+    navigate("/checkoutComplete");
   };
 
   const onProductSelect = (product: Product) => {
@@ -110,17 +109,18 @@ export const App: React.FC = () => {
     setSelectedProduct(null);
   };
 
-  const onOrderComplete = (details: CheckoutDetails) => {
-    setOrderDetails(details);
-    setOrderItems(cartItems);
-    setCartItems([]);
-    localStorage.removeItem(STORAGE_KEYS.CART_ITEMS);
-    navigate("/checkoutComplete", { replace: true });
-  };
-
   return (
     <div className="min-h-screen bg-blue-50 flex flex-col">
-      <Toaster />
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          duration: 2000,
+          style: {
+            background: "#4CAF50",
+            color: "#fff",
+          },
+        }}
+      />
       <Header
         viewMode={viewMode}
         setViewMode={setViewMode}
@@ -169,10 +169,6 @@ export const App: React.FC = () => {
                   onContinueShopping={onContinueShopping}
                   orderDetails={orderDetails}
                   items={orderItems}
-                  isCartOpen={isCartOpen}
-                  viewMode={viewMode}
-                  setViewMode={setViewMode}
-                  onCartToggle={onCartToggle}
                 />
               ) : (
                 <Navigate to="/" replace />
@@ -199,7 +195,7 @@ export const App: React.FC = () => {
         />
       )}
 
-      <Footer isCartOpen={isCartOpen} />
+      <Footer />
 
       <div className="fixed bottom-4 right-4 transition-all duration-300">
         <ScrollButtons
